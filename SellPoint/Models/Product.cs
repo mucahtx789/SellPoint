@@ -11,7 +11,7 @@
         public string ImageUrl { get; set; } = string.Empty;
 
         public int SellerId { get; set; }
-        public User Seller { get; set; } = null!;
+       
     }
 
 }

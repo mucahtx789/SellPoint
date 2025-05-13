@@ -7,6 +7,7 @@ import RegisterView from './views/RegisterView.vue';
 // Satıcı sayfaları
 import SellerDashboard from './views/seller/SellerDashboard.vue';
 import SellerOrders from './views/seller/SellerOrders.vue';
+import Addproduct from './views/seller/AddProduct.vue';
 
 // Müşteri sayfaları
 import CustomerDashboard from './views/customer/CustomerDashboard.vue';
@@ -29,7 +30,11 @@ const routes = [
     component: SellerOrders,
     meta: { requiresAuth: true, role: 'Seller' },
   },
-
+  {
+    path: '/seller/add-product',
+    component: Addproduct,
+    meta: { requiresAuth: true, role: 'Seller' }
+  },
   // Müşteri
   {
     path: '/customer/dashboard',
