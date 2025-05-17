@@ -1,34 +1,6 @@
 <template>
   <div class="p-6">
-    <!-- Sepet Kutusu -->
-    <div class="fixed top-4 right-4 w-96 max-h-96 overflow-y-auto border-2 border-black rounded p-4 bg-white shadow">
-      <h2 class="text-xl font-bold mb-2">Sepet</h2>
-      <div v-if="cart.length === 0">Sepetiniz boş.</div>
-      <div v-else>
-        <div v-for="item in cart" :key="item.productId" class="pb-2 mb-2 border-b">
-          <!-- Ürün Bilgileri Satırda -->
-          <div class="flex justify-between items-center mb-1">
-            <span class="font-semibold">{{ item.name }}</span>
-            <div class="flex items-center space-x-2">
-              <button @click="decreaseCartQuantity(item)" class="bg-gray-300 px-2 rounded">-</button>
-              <span>{{ item.quantity }}</span>
-              <button @click="increaseCartQuantity(item)" :disabled="item.quantity >= item.maxStock" class="bg-gray-300 px-2 rounded">+</button>
-              <button @click="removeFromCart(item)" class="text-red-600 text-sm ml-2">Sil</button>
-            </div>
-          </div>
-          <!-- Ürün Fiyatı -->
-          <div class="text-right text-sm text-gray-700">₺{{ (item.price * item.quantity).toFixed(2) }}</div>
-        </div>
-
-        <!-- Sepet Altı: Satın Al ve Toplam -->
-        <div class="mt-4 border-t pt-2">
-          <div class="flex justify-between items-center">
-            <button @click="buyCart" class="bg-green-500 text-white px-4 py-2 rounded">Satın Al</button>
-            <div class="font-semibold text-lg">Toplam: ₺{{ cartTotal.toFixed(2) }}</div>
-          </div>
-        </div>
-      </div>
-    </div>
+   
 
     <!-- Başlık ve kategori filtresi -->
     <div class="flex justify-between items-center mb-6">
@@ -64,6 +36,9 @@
         <div class="flex space-x-2 mt-2">
           <button @click="addToCart(product)" class="bg-blue-500 text-white px-4 py-2 rounded">Sepete Ekle</button>
           <button @click="buyNow(product)" class="bg-green-500 text-white px-4 py-2 rounded">Satın Al</button>
+          <router-link :to="`/urun/${encodeURIComponent(product.name)}/${product.id}`" class="bg-yellow-500 text-white px-4 py-2 rounded">
+            İncele
+          </router-link>
         </div>
       </div>
     </div>
@@ -80,6 +55,7 @@
         products: [],
         selectedCategory: '',
         cart: []
+        
       };
     },
     computed: {
@@ -87,48 +63,9 @@
         if (this.selectedCategory === '') return this.products;
         return this.products.filter(p => p.category === this.selectedCategory);
       },
-      cartTotal() {
-        return this.cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-      }
+      
     },
     methods: {
-      async loadCart() {
-        try {
-          const customerId = localStorage.getItem('userId');
-          const token = localStorage.getItem('token');
-
-          const response = await axios.get(`http://localhost:5195/api/cart/${customerId}`, {
-            headers: { Authorization: `Bearer ${token}` }
-          });
-          this.cart = response.data;
-        } catch (error) {
-          console.error('Sepet yüklenirken hata:', error);
-        }
-      },
-      async fetchProducts() {
-        try {
-          const token = localStorage.getItem('token');
-          const res = await axios.get('http://localhost:5195/api/products', {
-            headers: { Authorization: `Bearer ${token}` }
-          });
-          this.products = res.data.map(product => ({
-            ...product,
-            selectedQuantity: 0
-          }));
-        } catch (err) {
-          console.error('Ürünler alınamadı:', err);
-        }
-      },
-      validateQuantity(product) {
-        if (product.selectedQuantity > product.stock) product.selectedQuantity = product.stock;
-        else if (product.selectedQuantity < 0 || isNaN(product.selectedQuantity)) product.selectedQuantity = 0;
-      },
-      increaseQuantity(product) {
-        if (product.selectedQuantity < product.stock) product.selectedQuantity++;
-      },
-      decreaseQuantity(product) {
-        if (product.selectedQuantity > 0) product.selectedQuantity--;
-      },
       async addToCart(product) {
         if (product.selectedQuantity === 0) return;
 
@@ -161,64 +98,41 @@
 
         product.selectedQuantity = 0;
       },
-      async increaseCartQuantity(item) {
-        if (item.quantity < item.stock) {
-          item.quantity++;
-          const prod = this.products.find(p => p.id === item.productId);
-          if (prod) prod.stock--;
 
+      async fetchProducts() {
+        try {
           const token = localStorage.getItem('token');
-          await axios.put('http://localhost:5195/api/cart/update', {
-            productId: item.productId,
-            customerId: localStorage.getItem('userId'),
-            quantity: item.quantity
-          }, {
+          const res = await axios.get('http://localhost:5195/api/products', {
             headers: { Authorization: `Bearer ${token}` }
           });
+          this.products = res.data.map(product => ({
+            ...product,
+            selectedQuantity: 0
+          }));
+        } catch (err) {
+          console.error('Ürünler alınamadı:', err);
         }
       },
-      async decreaseCartQuantity(item) {
-        if (item.quantity > 1) {
-          item.quantity--;
-          const prod = this.products.find(p => p.id === item.productId);
-          if (prod) prod.stock++;
-
-          const token = localStorage.getItem('token');
-          await axios.put('http://localhost:5195/api/cart/update', {
-            productId: item.productId,
-            customerId: localStorage.getItem('userId'),
-            quantity: item.quantity
-          }, {
-            headers: { Authorization: `Bearer ${token}` }
-          });
-        }
+      validateQuantity(product) {
+        if (product.selectedQuantity > product.stock) product.selectedQuantity = product.stock;
+        else if (product.selectedQuantity < 0 || isNaN(product.selectedQuantity)) product.selectedQuantity = 0;
       },
-      async removeFromCart(item) {
-        const index = this.cart.findIndex(p => p.productId === item.productId);
-        if (index !== -1) {
-          const prod = this.products.find(p => p.id === item.productId);
-          if (prod) prod.stock += this.cart[index].quantity;
-          this.cart.splice(index, 1);
-
-          const token = localStorage.getItem('token');
-          await axios.delete(`http://localhost:5195/api/cart/${localStorage.getItem('userId')}/${item.productId}`, {
-            headers: { Authorization: `Bearer ${token}` }
-          });
-
-        }
+      increaseQuantity(product) {
+        if (product.selectedQuantity < product.stock) product.selectedQuantity++;
       },
+      decreaseQuantity(product) {
+        if (product.selectedQuantity > 0) product.selectedQuantity--;
+      },
+      
       buyNow(product) {
         alert(`Satın alma işlemi başlatıldı: ${product.name}`);
         // Yönlendirme veya satın alma işlemleri burada yapılabilir
       },
-      buyCart() {
-        alert("Sepetteki tüm ürünler satın alındı.");
-        // Sepetteki tüm ürünler için işlem yapılabilir
-      }
+      
     },
     mounted() {
       this.fetchProducts();
-      this.loadCart();
+      
     }
   };
 </script>
@@ -231,14 +145,7 @@
     gap: 20px;
   }
 
-  .product-card {
-    width: 450px;
-    border: 2px solid black;
-    border-radius: 8px;
-    padding: 16px;
-    background-color: white;
-    text-align: center;
-  }
+  
 
   .product-image {
     width: 200px;

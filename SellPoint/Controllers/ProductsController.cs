@@ -32,7 +32,19 @@ namespace SellPoint.Controllers
             return Ok(product);
         }
 
-        // GET: api/products
+        // ürün detay sayfasına o ürünü getirme
+        [HttpGet("{id}")]
+        [Authorize(Roles = "Customer")]
+        public async Task<IActionResult> GetProductById(int id)
+        {
+            var product = await _context.Products.FindAsync(id);
+            if (product == null)
+                return NotFound(new { message = "Ürün bulunamadı." });
+
+            return Ok(product);
+        }
+
+        // müşterilere tüm ürünleri getirme
         [HttpGet]
         [Authorize(Roles = "Customer")]
         public async Task<ActionResult> GetAllProducts()
@@ -40,6 +52,8 @@ namespace SellPoint.Controllers
             var products = await _context.Products.ToListAsync(); // Tüm ürünleri al
             return Ok(products);
         }
+        
+
 
         //satıcıya göre ürün getirme
         [HttpGet("my")]

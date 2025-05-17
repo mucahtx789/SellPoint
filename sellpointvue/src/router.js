@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 // Giriş ve kayıt
 import LoginView from './views/LoginView.vue';
 import RegisterView from './views/RegisterView.vue';
+import ProductDetail from './views/ProductDetail.vue';
 
 // Satıcı sayfaları
 import SellerDashboard from './views/seller/SellerDashboard.vue';
@@ -18,6 +19,7 @@ const routes = [
   { path: '/', redirect: '/login' },
   { path: '/login', component: LoginView },
   { path: '/register', component: RegisterView },
+  { path: '/urun/:name/:id', component: ProductDetail },
 
   // Satıcı
   {
