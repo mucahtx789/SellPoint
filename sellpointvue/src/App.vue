@@ -39,13 +39,15 @@
 
 <script>
   import axios from 'axios';
+  import * as signalR from '@microsoft/signalr'; //signalr
   export default {
     data() {
       return {
         cart: [],
         products: [],
         isLoggedIn: false,
-        isCustomer: false
+        isCustomer: false,
+        connection: null
         
       };
     },
@@ -64,6 +66,23 @@
           this.loadCart();
         }
       });
+
+      // SignalR bağlantısı
+      this.connection = new signalR.HubConnectionBuilder()
+        .withUrl("http://localhost:5195/carthub")
+        .withAutomaticReconnect()
+        .build();
+
+      this.connection.start().then(() => {
+        
+
+        this.connection.on("CartUpdated", (customerId) => {
+          if (customerId == localStorage.getItem('userId')) {
+           
+            this.loadCart(); // Sepeti yeniden getir
+          }
+        });
+      }).catch(err => console.error("SignalR hata:", err));
     },
     methods: {
       async loadCart() {

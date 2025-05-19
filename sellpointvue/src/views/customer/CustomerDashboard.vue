@@ -1,19 +1,15 @@
 <template>
   <div class="p-6">
-   
-
     <!-- Başlık ve kategori filtresi -->
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-2xl font-bold">Ürünler</h1>
-      <div class="space-x-2">
-        <label for="category" class="font-semibold">Kategori:</label>
-        <select v-model="selectedCategory" id="category" class="border p-1 rounded">
-          <option value="">Tümü</option>
-          <option>Elektronik</option>
-          <option>Gıda</option>
-          <option>Giyim</option>
-          <option>Kırtasiye</option>
-        </select>
+    <div class="mb-6">
+      <h1 class="text-2xl font-bold mb-4">Ürünler</h1>
+      <div class="flex space-x-2">
+        <button v-for="category in categories"
+                :key="category"
+                @click="selectedCategory = category"
+                :class="['px-4 py-2 rounded border', selectedCategory === category ? 'bg-blue-500 text-white' : 'bg-white text-black']">
+          {{ category === '' ? 'Tümü' : category }}
+        </button>
       </div>
     </div>
 
@@ -47,6 +43,7 @@
 
 <script>
   import axios from 'axios';
+  import * as signalR from '@microsoft/signalr'; // signalr
 
   export default {
     name: 'CustomerDashboard',
@@ -54,8 +51,9 @@
       return {
         products: [],
         selectedCategory: '',
-        cart: []
-        
+        categories: ['', 'Elektronik', 'Gıda', 'Giyim', 'Kırtasiye'],
+        cart: [],
+        connection: null
       };
     },
     computed: {
@@ -63,7 +61,6 @@
         if (this.selectedCategory === '') return this.products;
         return this.products.filter(p => p.category === this.selectedCategory);
       },
-      
     },
     methods: {
       async addToCart(product) {
@@ -123,16 +120,26 @@
       decreaseQuantity(product) {
         if (product.selectedQuantity > 0) product.selectedQuantity--;
       },
-      
       buyNow(product) {
         alert(`Satın alma işlemi başlatıldı: ${product.name}`);
-        // Yönlendirme veya satın alma işlemleri burada yapılabilir
       },
-      
     },
     mounted() {
       this.fetchProducts();
-      
+
+      this.connection = new signalR.HubConnectionBuilder()
+        .withUrl("http://localhost:5195/producthub")
+        .withAutomaticReconnect()
+        .build();
+
+      this.connection.start().then(() => {
+       
+
+        this.connection.on("ProductUpdated", () => {
+         
+          this.fetchProducts();
+        });
+      }).catch(err => console.error("SignalR bağlantı hatası:", err));
     }
   };
 </script>
@@ -144,8 +151,6 @@
     justify-content: center;
     gap: 20px;
   }
-
-  
 
   .product-image {
     width: 200px;
@@ -163,15 +168,15 @@
     font-size: 0.9rem;
   }
 
-  button.bg-blue-500 {
-    background-color: #3b82f6;
-  }
+    button.bg-blue-500 {
+      background-color: #3b82f6;
+    }
 
-  button.bg-green-500 {
-    background-color: #22c55e;
-  }
+    button.bg-green-500 {
+      background-color: #22c55e;
+    }
 
-  button.bg-gray-300 {
-    background-color: #d1d5db;
-  }
+    button.bg-gray-300 {
+      background-color: #d1d5db;
+    }
 </style>

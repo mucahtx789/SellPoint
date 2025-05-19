@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using SellPoint.Hubs;
 using SellPoint.Models;
 using System.Security.Claims;
 
@@ -13,9 +15,12 @@ namespace SellPoint.Controllers
     {
         private readonly ApplicationDbContext _context;
 
-        public ProductsController(ApplicationDbContext context)
+        private readonly IHubContext<ProductHub> _productHub;
+
+        public ProductsController(ApplicationDbContext context, IHubContext<ProductHub> productHub)
         {
             _context = context;
+            _productHub = productHub;
         }
 
 
@@ -28,6 +33,7 @@ namespace SellPoint.Controllers
 
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
+            await _productHub.Clients.All.SendAsync("ProductUpdated");
 
             return Ok(product);
         }
@@ -80,7 +86,7 @@ namespace SellPoint.Controllers
 
             _context.Products.Remove(product);
             await _context.SaveChangesAsync();
-
+            await _productHub.Clients.All.SendAsync("ProductUpdated");
             return NoContent();
         }
 
@@ -103,6 +109,7 @@ namespace SellPoint.Controllers
             existingProduct.ImageUrl = updatedProduct.ImageUrl;
 
             await _context.SaveChangesAsync();
+            await _productHub.Clients.All.SendAsync("ProductUpdated");
 
             return Ok(existingProduct);
         }

@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using SellPoint.Models;
 using System.Security.Claims;
 using SellPoint.Models.Dtos;
+using Microsoft.AspNetCore.SignalR;
+using SellPoint.Hubs;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -11,16 +13,17 @@ public class CartController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
 
-    public CartController(ApplicationDbContext context)
+    private readonly IHubContext<CartHub> _hubContext;
+    private readonly IHubContext<ProductHub> _productHub;
+
+    public CartController(ApplicationDbContext context, IHubContext<CartHub> hubContext, IHubContext<ProductHub> productHub)
     {
         _context = context;
+        _hubContext = hubContext; //sepet güncelleme
+        _productHub = productHub; //ürün güncelleme
     }
 
-   
 
-
-
-   
     [HttpPost("add")]
     [Authorize]
     public async Task<IActionResult> AddToCart([FromBody] CartItemDto dto)
@@ -50,6 +53,8 @@ public class CartController : ControllerBase
         product.Stock -= dto.Quantity;
 
         await _context.SaveChangesAsync();
+        //signal R
+        await _hubContext.Clients.All.SendAsync("CartUpdated", dto.CustomerId);
         return Ok("Ürün sepete eklendi.");
     }
 
@@ -78,6 +83,8 @@ public class CartController : ControllerBase
         cartItem.Quantity = dto.Quantity;
 
         await _context.SaveChangesAsync();
+        //signal R
+        await _hubContext.Clients.All.SendAsync("CartUpdated", dto.CustomerId);
         return Ok();
     }
 
@@ -98,6 +105,9 @@ public class CartController : ControllerBase
 
         _context.CartItems.Remove(cartItem);
         await _context.SaveChangesAsync();
+        //signal R
+        await _hubContext.Clients.All.SendAsync("CartUpdated", customerId);
+        await _productHub.Clients.All.SendAsync("ProductUpdated");
         return Ok();
     }
 

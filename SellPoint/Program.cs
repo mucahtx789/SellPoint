@@ -3,6 +3,7 @@ using AspNetCoreRateLimit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using SellPoint.Hubs;
 using SellPoint.Models;
 using System.Text;
 
@@ -29,8 +30,12 @@ namespace SellPoint
 
             builder.Services.AddControllers();
 
+            //SignalR
+            builder.Services.AddSignalR();
+
+
             // CORS ayarlarý
-             builder.Services.AddCors(options =>
+            builder.Services.AddCors(options =>
              {
                  options.AddPolicy("AllowVueApp", policy =>
                  {
@@ -86,6 +91,11 @@ namespace SellPoint
 
 
             app.MapControllers();
+
+            //signalr hubs
+            app.MapHub<CartHub>("/carthub");
+            app.MapHub<ProductHub>("/producthub");
+
 
             app.Run();
         }
