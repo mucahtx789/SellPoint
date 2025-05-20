@@ -120,8 +120,9 @@
       decreaseQuantity(product) {
         if (product.selectedQuantity > 0) product.selectedQuantity--;
       },
-      buyNow(product) {
-        alert(`Satın alma işlemi başlatıldı: ${product.name}`);
+      async buyNow(product) {
+        await this.addToCart(product); // önce sepete ekle
+        this.$router.push("/customer/purchasepage");
       },
     },
     mounted() {

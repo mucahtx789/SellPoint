@@ -12,8 +12,7 @@ import Addproduct from './views/seller/AddProduct.vue';
 
 // Müşteri sayfaları
 import CustomerDashboard from './views/customer/CustomerDashboard.vue';
-import CartView from './views/customer/CartView.vue';
-import CheckoutView from './views/customer/CheckoutView.vue';
+import PurchasePage from './views/customer/PurchasePage.vue';
 
 const routes = [
   { path: '/', redirect: '/login' },
@@ -22,37 +21,12 @@ const routes = [
   { path: '/urun/:name/:id', component: ProductDetail },
 
   // Satıcı
-  {
-    path: '/seller/dashboard',
-    component: SellerDashboard,
-    meta: { requiresAuth: true, role: 'Seller' },
-  },
-  {
-    path: '/seller/orders',
-    component: SellerOrders,
-    meta: { requiresAuth: true, role: 'Seller' },
-  },
-  {
-    path: '/seller/add-product',
-    component: Addproduct,
-    meta: { requiresAuth: true, role: 'Seller' }
-  },
+  {    path: '/seller/dashboard',    component: SellerDashboard,    meta: { requiresAuth: true, role: 'Seller' },},
+  {    path: '/seller/orders',    component: SellerOrders,    meta: { requiresAuth: true, role: 'Seller' },  },
+  {    path: '/seller/add-product',    component: Addproduct,    meta: { requiresAuth: true, role: 'Seller' }  },
   // Müşteri
-  {
-    path: '/customer/dashboard',
-    component: CustomerDashboard,
-    meta: { requiresAuth: true, role: 'Customer' },
-  },
-  {
-    path: '/cart',
-    component: CartView,
-    meta: { requiresAuth: true, role: 'Customer' },
-  },
-  {
-    path: '/checkout',
-    component: CheckoutView,
-    meta: { requiresAuth: true, role: 'Customer' },
-  },
+  {    path: '/customer/dashboard',    component: CustomerDashboard,    meta: { requiresAuth: true, role: 'Customer' },  },
+  {    path: '/customer/purchasepage', component: PurchasePage, meta: { requiresAuth: true, role: 'Customer' }, }
 ];
 
 const router = createRouter({
