@@ -94,8 +94,9 @@
         }
       },
 
-      buyNow() {
-        alert(`Satın alma işlemi başlatıldı: ${this.product.name}`);
+      async buyNow(product) {
+        await this.addToCart(product); // önce sepete ekle
+        this.$router.push("/customer/purchasepage");
       }
     }
   };

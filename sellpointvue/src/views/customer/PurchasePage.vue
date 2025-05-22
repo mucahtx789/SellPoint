@@ -62,6 +62,11 @@
         {{ successMessage }}
       </p>
     </div>
+    <button @click="buy"
+            :disabled="!address"
+            class="bg-green-500 text-white px-4 py-2 rounded disabled:opacity-50 disabled:cursor-not-allowed">
+      Satın Al
+    </button>
     <router-link to="/customer/dashboard">← Geri Dön</router-link>
   </div>
   
@@ -131,12 +136,31 @@
       cancel() {
         this.showForm = false;
         this.successMessage = '';
+      },
+      async buy() {
+        try {
+          const token = localStorage.getItem('token');
+          const response = await axios.put('http://localhost:5195/api/purchase/createOrder', {}, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+
+          this.successMessage = response.data.message || "Satın alma işlemi başarıyla tamamlandı.";
+
+          setTimeout(() => {
+            this.$router.push("/customer/dashboard");
+          }, 2000); // 2 saniye sonra yönlendir
+
+        } catch (error) {
+          console.error("Satın alma işlemi sırasında hata oluştu:", error);
+          this.successMessage = "Satın alma işlemi başarısız.";
+        }
       }
     },
     mounted() {
       // Eğer sadece "PurchasePage" sayfasında sepeti farklı bir şekilde göstereceksek,
       // app.vue'deki stilin sadece burada uygulanabilmesi için bu sınıfı ekliyoruz.
       document.body.classList.add('purchase-page');
+      this.fetchAddress();
     },
     beforeUnmount() {
       document.body.classList.remove('purchase-page');

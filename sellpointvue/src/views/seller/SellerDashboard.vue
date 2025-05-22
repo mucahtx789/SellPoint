@@ -4,20 +4,21 @@
       <h1 class="text-2xl font-bold">Ürünlerim</h1>
       <div class="space-x-2">
         <button @click="$router.push('/seller/add-product')" class="bg-green-600 text-white px-4 py-2 rounded">Ürün Ekle</button>
-        <button @click="$router.push('/seller/seller-orders')" class="bg-blue-600 text-white px-4 py-2 rounded">Siparişlerim</button>
+        <button @click="$router.push('/seller/orders')" class="bg-blue-600 text-white px-4 py-2 rounded">Siparişlerim</button>
       </div>
     </div>
 
     <!-- Kategori filtresi -->
     <div class="mb-4">
       <label for="category" class="font-semibold mr-2">Kategori:</label>
-      <select v-model="selectedCategory" id="category" class="border p-1 rounded">
-        <option value="">Tümü</option>
-        <option>Giyim</option>
-        <option>Gıda</option>
-        <option>Elektronik</option>
-        <option>Kırtasiye</option>
-      </select>
+      <div class="flex space-x-2">
+        <button v-for="category in categories"
+                :key="category"
+                @click="selectedCategory = category"
+                :class="['px-4 py-2 rounded border', selectedCategory === category ? 'bg-blue-500 text-white' : 'bg-white text-black']">
+          {{ category === '' ? 'Tümü' : category }}
+        </button>
+      </div>
     </div>
 
     <!-- Ürün listesi -->
@@ -49,10 +50,7 @@
 
       <label>Kategori:</label>
       <select v-model="editProduct.category" class="border p-1 w-full mb-2">
-        <option>Giyim</option>
-        <option>Gıda</option>
-        <option>Elektronik</option>
-        <option>Kırtasiye</option>
+        <option v-for="cat in categories" :key="cat" :value="cat" v-if="cat !== ''">{{ cat }}</option>
       </select>
 
       <label>Fiyat:</label>
@@ -81,6 +79,7 @@
       return {
         products: [],
         selectedCategory: '',
+        categories: ['', 'Elektronik', 'Gıda', 'Giyim', 'Kırtasiye'],
         showEditModal: false,
         editProduct: {
           id: null,
@@ -156,23 +155,20 @@
 </script>
 
 <style scoped>
-  .product-grid {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 20px;
-  }
-
+  /* Ürün kartları */
   .product-card {
     width: 450px;
     border: 2px solid black;
     border-radius: 8px;
     padding: 16px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
     background-color: white;
+    text-align: center;
+  }
+  .product-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
   }
 
   .product-image {

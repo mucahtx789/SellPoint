@@ -1,72 +1,32 @@
 <template>
-  <nav>
-    <!-- Giriş yapılmışsa çıkış butonunu göster -->
+  <div id="app" class="app-bg">
+    <!-- Çıkış butonu -->
     <button v-if="isLoggedIn" @click="logout" class="logout-btn">Çıkış Yap</button>
 
-    <!-- Sepet Kutusu -->
-    <div v-if="isCustomer"
-         :class="[
-        'fixed border-2 border-black rounded p-4 bg-white shadow',
-        isPurchasePage
-          ? 'purchase-page-style'
-          : 'top-4 right-4 w-96 max-h-96 overflow-y-auto'
-      ]">
-      <h2 class="text-xl font-bold mb-2">Sepet</h2>
-      <div v-if="cart.length === 0">Sepetiniz boş.</div>
-      <div v-else>
-        <div v-for="item in cart"
-             :key="item.productId"
-             class="pb-2 mb-2 border-b">
-          <!-- Ürün Bilgileri -->
-          <div class="flex justify-between items-center mb-1">
-            <span class="font-semibold">{{ item.name }}</span>
-            <div class="flex items-center space-x-2">
-              <button @click="decreaseCartQuantity(item)"
-                      class="bg-gray-300 px-2 rounded">
-                -
-              </button>
-              <span>{{ item.quantity }}</span>
-              <button @click="increaseCartQuantity(item)"
-                      :disabled="item.quantity >= item.maxStock"
-                      class="bg-gray-300 px-2 rounded">
-                +
-              </button>
-              <button @click="removeFromCart(item)"
-                      class="text-red-600 text-sm ml-2">
-                Sil
-              </button>
-            </div>
-          </div>
-          <!-- Ürün Fiyatı -->
-          <div class="text-right text-sm text-gray-700">
-            ₺{{ (item.price * item.quantity).toFixed(2) }}
-          </div>
-        </div>
+    <!-- Sepet bileşeni -->
+    <Cart v-if="isCustomer"
+          :cart="cart"
+          :isCustomer="isCustomer"
+          :isPurchasePage="isPurchasePage"
+          @buy="buyCart"
+          @increase="increaseCartQuantity"
+          @decrease="decreaseCartQuantity"
+          @remove="removeFromCart"
+    />
 
-        <!-- Sepet Altı: Satın Al ve Toplam -->
-        <div class="mt-4 border-t pt-2">
-          <div class="flex justify-between items-center">
-            <button v-if="!isPurchasePage"
-                    @click="buyCart"
-                    class="bg-green-500 text-white px-4 py-2 rounded">
-              Satın Al
-            </button>
-            <div class="font-semibold text-lg">
-              Toplam: ₺{{ cartTotal.toFixed(2) }}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </nav>
-  <router-view />
+    <!-- Sayfa içeriği -->
+    <router-view />
+  </div>
 </template>
 
 <script>
   import axios from "axios";
   import * as signalR from "@microsoft/signalr";
+  import Cart from "./views/Cart.vue";
+
 
   export default {
+    components: { Cart },
     data() {
       return {
         cart: [],
@@ -78,10 +38,7 @@
     },
     computed: {
       cartTotal() {
-        return this.cart.reduce(
-          (sum, item) => sum + item.price * item.quantity,
-          0
-        );
+        return this.cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
       },
       isPurchasePage() {
         return this.$route.path === "/customer/purchasepage";
@@ -119,53 +76,14 @@
         try {
           const customerId = localStorage.getItem("userId");
           const token = localStorage.getItem("token");
-
           const response = await axios.get(
             `http://localhost:5195/api/cart/${customerId}`,
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
+            { headers: { Authorization: `Bearer ${token}` } }
           );
           this.cart = response.data;
         } catch (error) {
           console.error("Sepet yüklenirken hata:", error);
         }
-      },
-      async addToCart(product) {
-        if (product.selectedQuantity === 0) return;
-
-        const existing = this.cart.find((p) => p.productId === product.id);
-        if (existing) {
-          const total = existing.quantity + product.selectedQuantity;
-          if (total <= existing.maxStock) {
-            existing.quantity += product.selectedQuantity;
-            product.stock -= product.selectedQuantity;
-          }
-        } else {
-          this.cart.push({
-            productId: product.id,
-            name: product.name,
-            price: product.price,
-            quantity: product.selectedQuantity,
-            maxStock: product.stock,
-          });
-          product.stock -= product.selectedQuantity;
-        }
-
-        const token = localStorage.getItem("token");
-        await axios.post(
-          "http://localhost:5195/api/cart/add",
-          {
-            productId: product.id,
-            quantity: product.selectedQuantity,
-            customerId: localStorage.getItem("userId"),
-          },
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-
-        product.selectedQuantity = 0;
       },
       async increaseCartQuantity(item) {
         if (item.quantity < item.stock) {
@@ -174,17 +92,13 @@
           if (prod) prod.stock--;
 
           const token = localStorage.getItem("token");
-          await axios.put(
-            "http://localhost:5195/api/cart/update",
-            {
-              productId: item.productId,
-              customerId: localStorage.getItem("userId"),
-              quantity: item.quantity,
-            },
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
-          );
+          await axios.put("http://localhost:5195/api/cart/update", {
+            productId: item.productId,
+            customerId: localStorage.getItem("userId"),
+            quantity: item.quantity,
+          }, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
         }
       },
       async decreaseCartQuantity(item) {
@@ -194,23 +108,17 @@
           if (prod) prod.stock++;
 
           const token = localStorage.getItem("token");
-          await axios.put(
-            "http://localhost:5195/api/cart/update",
-            {
-              productId: item.productId,
-              customerId: localStorage.getItem("userId"),
-              quantity: item.quantity,
-            },
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
-          );
+          await axios.put("http://localhost:5195/api/cart/update", {
+            productId: item.productId,
+            customerId: localStorage.getItem("userId"),
+            quantity: item.quantity,
+          }, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
         }
       },
       async removeFromCart(item) {
-        const index = this.cart.findIndex(
-          (p) => p.productId === item.productId
-        );
+        const index = this.cart.findIndex((p) => p.productId === item.productId);
         if (index !== -1) {
           const prod = this.products.find((p) => p.id === item.productId);
           if (prod) prod.stock += this.cart[index].quantity;
@@ -218,12 +126,8 @@
 
           const token = localStorage.getItem("token");
           await axios.delete(
-            `http://localhost:5195/api/cart/${localStorage.getItem(
-              "userId"
-            )}/${item.productId}`,
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
+            `http://localhost:5195/api/cart/${localStorage.getItem("userId")}/${item.productId}`,
+            { headers: { Authorization: `Bearer ${token}` } }
           );
         }
       },
@@ -247,30 +151,36 @@
 </script>
 
 <style>
-  .product-card {
-    width: 450px;
-    border: 2px solid black;
-    border-radius: 8px;
-    padding: 16px;
-    background-color: white;
-    text-align: center;
+  html, body, #app {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow-x: hidden;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #74ebd5 0%, #ACB6E5 100%);
   }
 
-  /* Sepetin sadece satın alma sayfasında ortalanması için */
-  .purchase-page-style {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 90%;
-    max-width: 600px;
-    height: auto;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    overflow-y: auto;
-    z-index: 9999;
-    background-color: #fff;
-    box-sizing: border-box;
+  .app-bg {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #74ebd5 0%, #ACB6E5 100%);
   }
+
+  .logout-btn {
+    position: fixed;
+    top: 16px;
+    right: 280px;
+    background-color: #dc2626;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 10001;
+    white-space: nowrap;
+  }
+
+    .logout-btn:hover {
+      background-color: #b91c1c;
+    }
 </style>

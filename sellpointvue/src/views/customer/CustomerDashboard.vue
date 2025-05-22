@@ -123,7 +123,7 @@
       async buyNow(product) {
         await this.addToCart(product); // önce sepete ekle
         this.$router.push("/customer/purchasepage");
-      },
+      }
     },
     mounted() {
       this.fetchProducts();
@@ -145,7 +145,16 @@
   };
 </script>
 
-<style scoped>
+<style >
+  /* Ürün kartları */
+  .product-card {
+    width: 450px;
+    border: 2px solid black;
+    border-radius: 8px;
+    padding: 16px;
+    background-color: white;
+    text-align: center;
+  }
   .product-grid {
     display: flex;
     flex-wrap: wrap;
@@ -180,4 +189,5 @@
     button.bg-gray-300 {
       background-color: #d1d5db;
     }
+
 </style>
