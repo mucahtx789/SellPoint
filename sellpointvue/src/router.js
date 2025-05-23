@@ -21,12 +21,33 @@ const routes = [
   { path: '/urun/:name/:id', component: ProductDetail },
 
   // Satıcı
-  {    path: '/seller/dashboard',    component: SellerDashboard,    meta: { requiresAuth: true, role: 'Seller' },},
-  {    path: '/seller/orders',    component: SellerOrders,    meta: { requiresAuth: true, role: 'Seller' },  },
-  {    path: '/seller/add-product',    component: Addproduct,    meta: { requiresAuth: true, role: 'Seller' }  },
+  {
+    path: '/seller/dashboard',
+    component: SellerDashboard,
+    meta: { requiresAuth: true, role: 'Seller' },
+  },
+  {
+    path: '/seller/orders',
+    component: SellerOrders,
+    meta: { requiresAuth: true, role: 'Seller' },
+  },
+  {
+    path: '/seller/add-product',
+    component: Addproduct,
+    meta: { requiresAuth: true, role: 'Seller' },
+  },
+
   // Müşteri
-  {    path: '/customer/dashboard',    component: CustomerDashboard,    meta: { requiresAuth: true, role: 'Customer' },  },
-  {    path: '/customer/purchasepage', component: PurchasePage, meta: { requiresAuth: true, role: 'Customer' }, }
+  {
+    path: '/customer/dashboard',
+    component: CustomerDashboard,
+    meta: { requiresAuth: true, role: 'Customer' },
+  },
+  {
+    path: '/customer/purchasepage',
+    component: PurchasePage,
+    meta: { requiresAuth: true, role: 'Customer' },
+  }
 ];
 
 const router = createRouter({
@@ -39,17 +60,29 @@ router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token');
   const role = localStorage.getItem('role');
 
-  if (to.meta.requiresAuth) {
-    if (!token) {
-      return next('/login');
-    }
+  const publicPages = ['/login', '/register'];
+  const isPublicPage = publicPages.includes(to.path);
 
-    if (to.meta.role && to.meta.role !== role) {
-      // Yanlış rol, yönlendir
-      return next('/login');
-    }
+  // 1. Giriş yapmış kullanıcı login veya register sayfasına gidemez
+  if (isPublicPage && token) {
+    if (role === 'Seller') return next('/seller/dashboard');
+    if (role === 'Customer') return next('/customer/dashboard');
+    return next(); // Rol bilinmiyorsa yine de devam
   }
 
+  // 2. Giriş yapılmamışsa ve sayfa giriş gerektiriyorsa login'e yönlendir
+  if (to.meta.requiresAuth && !token) {
+    return next('/login');
+  }
+
+  // 3. Giriş yapılmış ama yetkisiz rol ile erişim varsa rolüne uygun sayfaya yönlendir
+  if (to.meta.requiresAuth && to.meta.role !== role) {
+    if (role === 'Seller') return next('/seller/dashboard');
+    if (role === 'Customer') return next('/customer/dashboard');
+    return next('/login'); // rol yoksa veya tanımsızsa
+  }
+
+  // 4. Her şey yolundaysa devam
   next();
 });
 

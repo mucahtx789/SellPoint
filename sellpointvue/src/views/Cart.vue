@@ -1,49 +1,31 @@
-<!-- src/components/Cart.vue -->
 <template>
   <teleport to="body">
     <div v-if="isCustomer"
          :class="[
-          'cart-box',
-          isPurchasePage ? 'purchase-page-style' : 'default-cart-style'
-        ]">
-      <h2 class="text-xl font-bold mb-2">Sepet</h2>
+           'cart-box',
+           isPurchasePage ? 'purchase-page-style' : 'default-cart-style'
+         ]">
+      <h2 class="text-xl font-bold mb-4">Sepet</h2>
       <div v-if="cart.length === 0">Sepetiniz boş.</div>
       <div v-else>
-        <table class="w-full text-sm border">
-          <thead>
-            <tr class="bg-gray-100">
-              <th class="border p-2 text-left">Ürün</th>
-              <th class="border p-2">Adet</th>
-              <th class="border p-2">Toplam</th>
-              <th class="border p-2">İşlem</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="item in cart" :key="item.productId" class="border">
-              <td class="border p-2 font-semibold">{{ item.name }}</td>
-              <td class="border p-2 text-center">
-                <div class="flex justify-center items-center space-x-2">
-                  <button @click="$emit('decrease', item)" class="bg-gray-300 px-2 rounded">-</button>
-                  <span>{{ item.quantity }}</span>
-                  <button @click="$emit('increase', item)"
-                          :disabled="item.quantity >= item.maxStock"
-                          class="bg-gray-300 px-2 rounded">
-                    +
-                  </button>
-                </div>
-              </td>
-              <td class="border p-2 text-right">₺{{ (item.price * item.quantity).toFixed(2) }}</td>
-              <td class="border p-2 text-center">
-                <button @click="$emit('remove', item)" class="text-red-600 text-sm">Sil</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div v-for="item in cart" :key="item.productId" class="cart-product-card mb-4">
+          <div class="font-semibold text-base mb-1">{{ item.name }}</div>
+          <div class="text-sm mb-1">
+            Adet:
+            <span class="inline-flex items-center space-x-2">
+              <button @click="$emit('decrease', item)" class="product-button bg-gray-300">-</button>
+              <span>{{ item.quantity }}</span>
+              <button @click="$emit('increase', item)" :disabled="item.quantity >= item.maxStock" class="product-button bg-gray-300">+</button>
+            </span>
+          </div>
+          <div class="text-sm mb-1">Toplam: ₺{{ (item.price * item.quantity).toFixed(2) }}</div>
+          <button @click="$emit('remove', item)" class="product-button bg-red-500 text-white mt-2">Sil</button>
+        </div>
 
         <div class="mt-4 border-t pt-2 flex justify-between items-center">
           <button v-if="!isPurchasePage"
                   @click="$emit('buy')"
-                  class="bg-green-500 text-white px-4 py-2 rounded">
+                  class="product-button bg-green-500 text-white">
             Satın Al
           </button>
           <div class="font-semibold text-lg">Toplam: ₺{{ cartTotal.toFixed(2) }}</div>
@@ -54,18 +36,18 @@
 </template>
 
 <script>
-export default {
-  props: {
-    cart: Array,
-    isCustomer: Boolean,
-    isPurchasePage: Boolean
-  },
-  computed: {
-    cartTotal() {
-      return this.cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  export default {
+    props: {
+      cart: Array,
+      isCustomer: Boolean,
+      isPurchasePage: Boolean
+    },
+    computed: {
+      cartTotal() {
+        return this.cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      }
     }
-  }
-};
+  };
 </script>
 
 <style scoped>
@@ -93,9 +75,52 @@ export default {
   .default-cart-style {
     top: 16px;
     right: 16px;
-    width: 250px;
+    width: 320px;
     max-height: 90vh;
     padding: 16px;
     border: 2px solid black;
+  }
+
+
+  .cart-product-card {
+    background-color: #d6e4f0;
+    border-radius: 12px;
+    padding: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .product-button {
+    padding: 6px 10px;
+    border-radius: 5px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border: 1px solid #000;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+
+    .product-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+  .bg-green-500 {
+    background-color: #22c55e;
+    color: white;
+  }
+
+  .bg-yellow-500 {
+    background-color: #facc15;
+    color: #1f2937;
+  }
+
+  .bg-gray-300 {
+    background-color: #e2e8f0;
+    color: #111827;
+  }
+
+  .bg-red-500 {
+    background-color: #ef4444;
+    color: white;
   }
 </style>
