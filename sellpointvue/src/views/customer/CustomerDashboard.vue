@@ -10,7 +10,21 @@
                 :class="['category-button', selectedCategory === category ? 'bg-blue-500 text-white' : 'bg-white text-black']">
           {{ category === '' ? 'Tümü' : category }}
         </button>
-      </div>
+        <input v-model="searchTerm"
+               type="text"
+               placeholder="Ürün adı ara..."
+               class="search-input border rounded px-3 py-2 w-60" />
+        <button @click="sortByPrice('asc')"
+                :class="['category-button', sortDirection === 'asc' ? 'active' : '']">
+          Fiyat Artan
+        </button>
+
+        <button @click="sortByPrice('desc')"
+                :class="['category-button', sortDirection === 'desc' ? 'active' : '']">
+          Fiyat Azalan
+        </button>
+      </div> 
+       
     </div>
 
     <!-- Ürün listesi -->
@@ -49,6 +63,8 @@
     name: 'CustomerDashboard',
     data() {
       return {
+        searchTerm: '',
+        sortDirection: '', // fiyat sıralama yönü
         products: [],
         selectedCategory: '',
         categories: ['', 'Elektronik', 'Gıda', 'Giyim', 'Kırtasiye'],
@@ -63,6 +79,14 @@
       }
     },
     methods: {
+      sortByPrice(direction) {
+        this.sortDirection = direction;
+        if (direction === 'asc') {
+          this.products.sort((a, b) => a.price - b.price);
+        } else if (direction === 'desc') {
+          this.products.sort((a, b) => b.price - a.price);
+        }
+      },
       async addToCart(product) {
         if (product.selectedQuantity === 0) return;
 
@@ -103,7 +127,7 @@
           });
           this.products = res.data.map(product => ({
             ...product,
-            selectedQuantity: 0
+            selectedQuantity: 1
           }));
         } catch (err) {
           console.error('Ürünler alınamadı:', err);
@@ -137,7 +161,17 @@
           this.fetchProducts();
         });
       }).catch(err => console.error("SignalR bağlantı hatası:", err));
+    },
+    computed: {
+      filteredProducts() {
+        return this.products.filter(product => {
+          const matchesCategory = this.selectedCategory === '' || product.category === this.selectedCategory;
+          const matchesSearch = product.name.toLowerCase().includes(this.searchTerm.toLowerCase());
+          return matchesCategory && matchesSearch;
+        });
+      }
     }
+
   };
 </script>
 
@@ -154,6 +188,18 @@
     margin-bottom: 16px;
     padding-bottom: 8px;
   }
+  .search-input {
+    border: 1px solid #64748b;
+    border-radius: 6px;
+    font-size: 1rem;
+    outline: none;
+  }
+
+    .search-input:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.5);
+    }
+
 
   /* Kategori Butonları */
   .category-button {
@@ -186,10 +232,14 @@
 
   /* Ürün Grid */
   .product-grid {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 24px;
-    max-width: calc(100% - 320px);
+    padding-right: 320px;
+
   }
 
   /* Ürün Kartları */

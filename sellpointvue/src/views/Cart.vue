@@ -42,6 +42,7 @@
       isCustomer: Boolean,
       isPurchasePage: Boolean
     },
+    emits: ['buy', 'increase', 'decrease', 'remove'], // <-- Bunu ekledik
     computed: {
       cartTotal() {
         return this.cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -62,15 +63,30 @@
   }
 
   .purchase-page-style {
-    top: 30%;
+    position: fixed;
+    top: 32%;
     left: 50%;
     transform: translate(-50%, -50%);
     width: 90%;
-    max-width: 600px;
-    max-height: 80vh;
+    max-width: 1000px;
+    height: 500px;
     padding: 20px;
     border: 2px solid #000;
+    background-color: white;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
   }
+
+  .cart-box {
+    overflow: hidden;
+  }
+
+    .cart-box > div:last-child {
+      overflow-y: auto;
+      flex-grow: 1;
+      margin-top: 1rem;
+    }
 
   .default-cart-style {
     top: 16px;
@@ -79,8 +95,10 @@
     max-height: 90vh;
     padding: 16px;
     border: 2px solid black;
+    height: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
   }
-
 
   .cart-product-card {
     background-color: #d6e4f0;

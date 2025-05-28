@@ -163,12 +163,13 @@
   }
 
   .purchase-card {
-    background-color: #d6e4f0;
-    padding: 24px;
-    border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 500px;
+    background-color: white;
+    border: 2px solid #000;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 955px;
   }
 
   .address-form {
