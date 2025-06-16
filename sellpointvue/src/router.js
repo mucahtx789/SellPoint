@@ -82,7 +82,6 @@ router.beforeEach((to, from, next) => {
     return next('/login'); // rol yoksa veya tanımsızsa
   }
 
-  // 4. Her şey yolundaysa devam
   next();
 });
 

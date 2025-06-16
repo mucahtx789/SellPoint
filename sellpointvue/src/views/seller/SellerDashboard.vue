@@ -159,7 +159,7 @@
     color: #1f2937;
   }
 
-  /* Kategori Butonları */
+  /* Kategori  */
   .category-button {
     background-color: #e5e7eb;
     border: 1px solid #000;

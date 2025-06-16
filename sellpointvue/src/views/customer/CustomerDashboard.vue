@@ -27,7 +27,7 @@
        
     </div>
 
-    <!-- Ürün listesi -->
+    <!-- Ürün liste -->
     <div class="product-grid">
       <div v-for="product in filteredProducts" :key="product.id" class="product-card">
         <img :src="product.imageUrl" alt="Ürün Resmi" class="product-image" />

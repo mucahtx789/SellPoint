@@ -57,7 +57,7 @@ namespace SellPoint.Controllers
                 return BadRequest(new { message = "Sepet boş." });
             }
 
-            // Yeni bir sipariş oluştur
+            // Yeni bir sipariş 
             var order = new Order
             {
                 CustomerId = userId,
