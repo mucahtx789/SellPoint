@@ -42,7 +42,7 @@
       isCustomer: Boolean,
       isPurchasePage: Boolean
     },
-    emits: ['buy', 'increase', 'decrease', 'remove'], // <-- Bunu ekledik
+    emits: ['buy', 'increase', 'decrease', 'remove'], 
     computed: {
       cartTotal() {
         return this.cart.reduce((sum, item) => sum + item.price * item.quantity, 0);

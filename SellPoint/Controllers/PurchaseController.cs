@@ -73,7 +73,7 @@ namespace SellPoint.Controllers
                     OrderId = order.Id,
                     ProductId = item.ProductId,
                     Quantity = item.Quantity,
-                    UnitPrice = item.Product.Price,//?? birden fazla üründe fiyat ne o
+                    UnitPrice = item.Product.Price,//
                     SellerId = item.Product.SellerId
                 };
                 _context.OrderItems.Add(orderItem);
