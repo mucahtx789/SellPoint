@@ -24,7 +24,7 @@ namespace SellPoint.Controllers
         }
 
 
-        //ürün ekleme
+    
         [HttpPost]
         public async Task<IActionResult> AddProduct([FromBody] Product product)
         {

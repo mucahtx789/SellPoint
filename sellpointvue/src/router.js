@@ -63,7 +63,7 @@ router.beforeEach((to, from, next) => {
   const publicPages = ['/login', '/register'];
   const isPublicPage = publicPages.includes(to.path);
 
-  // 1. Giriş yapmış kullanıcı login veya register sayfasına gidemez
+  //  Giriş yapmış kullanıcı login veya register sayfasına gidemez
   if (isPublicPage && token) {
     if (role === 'Seller') return next('/seller/dashboard');
     if (role === 'Customer') return next('/customer/dashboard');
