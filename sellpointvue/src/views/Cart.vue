@@ -62,21 +62,7 @@
     z-index: 10000;
   }
 
-  .purchase-page-style {
-    position: fixed;
-    top: 32%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 90%;
-    max-width: 1000px;
-    height: 500px;
-    padding: 20px;
-    border: 2px solid #000;
-    background-color: white;
-    z-index: 10000;
-    display: flex;
-    flex-direction: column;
-  }
+
 
   .cart-box {
     overflow: hidden;
@@ -89,7 +75,7 @@
     }
 
   .default-cart-style {
-    top: 16px;
+    top: 100px; /* ==== üsten boşluk bırakma ==== */
     right: 16px;
     width: 320px;
     max-height: 90vh;
