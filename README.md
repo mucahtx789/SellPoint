@@ -25,15 +25,15 @@
 ## 📸 Ekran Görüntüleri
 
 ### Müşteri Sayfaları
-![Müşteri Sayfası](screenshots/1.jpg)
+![Müşteri Sayfası](Screenshots/1.jpg)
 
-![Satın Alma sayfası](screenshots/2.jpg)
+![Satın Alma sayfası](Screenshots/2.jpg)
 
 ### Satıcı Sayfaları
-![Satıcı Sayfası](screenshots/3.jpg)
+![Satıcı Sayfası](Screenshots/3.jpg)
 
-![Ürün Ekleme](screenshots/4.jpg)
+![Ürün Ekleme](Screenshots/4.jpg)
 
-![Sipariş Sayfası](screenshots/5.jpg)
+![Sipariş Sayfası](Screenshots/5.jpg)
 
-![Ürün düzenleme](screenshots/6.jpg)
+![Ürün düzenleme](Screenshots/6.jpg)
