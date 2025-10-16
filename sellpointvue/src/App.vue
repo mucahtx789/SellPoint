@@ -43,7 +43,7 @@
     <!-- Footer -->
     <footer class="footer">
       <div class="container footer-inner">
-        <p>&copy; 2025 Sell Point. Tüm hakları saklıdır.</p>
+        <p>&copy; 2025 Sell Point Tüm hakları saklıdır.</p>
         <div class="footer-links">
           <a href="#" class="footer-link">Hakkımızda</a>
           <a href="#" class="footer-link">İletişim</a>
